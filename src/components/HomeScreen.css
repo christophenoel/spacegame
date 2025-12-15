@@ -4,7 +4,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #000814 0%, #001d3d 50%, #003566 100%);
+  background: url('/space-background.jpg') center center / cover no-repeat,
+              linear-gradient(135deg, #000814 0%, #001d3d 50%, #003566 100%);
   position: relative;
   overflow: hidden;
 }
@@ -15,21 +16,31 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-image:
-    radial-gradient(2px 2px at 20px 30px, white, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 60px 70px, white, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 50px 50px, white, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 130px 80px, white, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 90px 10px, white, rgba(0,0,0,0));
-  background-size: 200px 200px;
-  background-position: 0 0, 40px 60px, 130px 270px, 70px 100px, 150px 50px;
-  animation: twinkle 5s ease-in-out infinite;
-  opacity: 0.6;
+  background: rgba(0, 8, 20, 0.4);
+  backdrop-filter: blur(1px);
 }
 
 @keyframes twinkle {
   0%, 100% { opacity: 0.6; }
   50% { opacity: 0.8; }
+}
+
+.spacebel-banner {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  z-index: 10;
+  background: rgba(0, 20, 40, 0.8);
+  padding: 15px 30px;
+  border-radius: 8px;
+  border: 2px solid rgba(0, 217, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
+}
+
+.spacebel-banner img {
+  height: 60px;
+  width: auto;
+  display: block;
 }
 
 .home-content {

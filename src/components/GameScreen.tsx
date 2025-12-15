@@ -14,6 +14,9 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [gameState, setGameState] = useState<GameState>(() => initializeGame());
   const [stars] = useState(() => generateStars(100));
+  const backgroundImageRef = useRef<HTMLImageElement | null>(null);
+  const earthImageRef = useRef<HTMLImageElement | null>(null);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
   const gameStateRef = useRef<GameState>(gameState);
   const thrustInputsRef = useRef<ThrustInputs>({
     up: false,
@@ -23,6 +26,41 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
   });
   const lastTimeRef = useRef<number>(0);
   const animationFrameRef = useRef<number | null>(null);
+
+  // Load images
+  useEffect(() => {
+    const loadImages = async () => {
+      const bgImg = new Image();
+      const earthImg = new Image();
+
+      bgImg.src = '/space-background.jpg';
+      earthImg.src = '/earth.jpg';
+
+      try {
+        await Promise.all([
+          new Promise((resolve, reject) => {
+            bgImg.onload = resolve;
+            bgImg.onerror = reject;
+            setTimeout(reject, 2000); // Timeout after 2 seconds
+          }),
+          new Promise((resolve, reject) => {
+            earthImg.onload = resolve;
+            earthImg.onerror = reject;
+            setTimeout(reject, 2000); // Timeout after 2 seconds
+          }),
+        ]);
+
+        backgroundImageRef.current = bgImg;
+        earthImageRef.current = earthImg;
+      } catch (error) {
+        console.warn('Failed to load some images, using fallback graphics');
+      } finally {
+        setImagesLoaded(true); // Start game even if images fail
+      }
+    };
+
+    loadImages();
+  }, []);
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -98,6 +136,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
 
   // Game loop
   useEffect(() => {
+    if (!imagesLoaded) return;
+
     const gameLoop = (currentTime: number) => {
       if (!lastTimeRef.current) {
         lastTimeRef.current = currentTime;
@@ -120,8 +160,16 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
       // Render
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext('2d');
-      if (ctx && canvas) {
-        renderGame(ctx, newState, stars, thrustInputsRef.current, currentTime);
+      if (ctx && canvas && imagesLoaded) {
+        renderGame(
+          ctx,
+          newState,
+          stars,
+          thrustInputsRef.current,
+          currentTime,
+          backgroundImageRef.current,
+          earthImageRef.current
+        );
       }
 
       // Continue loop
@@ -136,7 +184,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [stars]); // Only depend on stars, which never changes
+  }, [stars, imagesLoaded]);
 
   const orbsCollected = gameState.orbs.filter((orb) => orb.collected).length;
   const totalOrbs = gameState.orbs.length;
@@ -179,6 +227,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
         {gameState.isPaused && (
           <div className="pause-indicator">PAUSED</div>
         )}
+      </div>
+
+      <div className="spacebel-logo">
+        <img src="/logo.svg" alt="Spacebel" />
       </div>
 
       <canvas

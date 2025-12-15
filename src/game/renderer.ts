@@ -1,4 +1,4 @@
-import { GameState, Satellite, Vector2D } from '../types/game';
+import { GameState, Vector2D } from '../types/game';
 import { GAME_CONFIG } from './constants';
 import { calculateGravity, addVectors, scaleVector } from './physics';
 
@@ -91,45 +91,69 @@ export function drawCollectionEffects(ctx: CanvasRenderingContext2D, gameState: 
   });
 }
 
-export function drawPlanet(ctx: CanvasRenderingContext2D, gameState: GameState) {
+export function drawPlanet(
+  ctx: CanvasRenderingContext2D,
+  gameState: GameState,
+  earthImage: HTMLImageElement | null
+) {
   const { planet } = gameState;
 
-  // Draw glow
+  // Draw atmospheric glow
   const gradient = ctx.createRadialGradient(
     planet.position.x,
     planet.position.y,
     planet.radius * 0.5,
     planet.position.x,
     planet.position.y,
-    planet.radius * 1.5
+    planet.radius * 1.8
   );
-  gradient.addColorStop(0, 'rgba(200, 100, 255, 0.3)');
-  gradient.addColorStop(1, 'rgba(100, 50, 200, 0)');
+  gradient.addColorStop(0, 'rgba(100, 180, 255, 0.4)');
+  gradient.addColorStop(0.7, 'rgba(60, 120, 200, 0.2)');
+  gradient.addColorStop(1, 'rgba(30, 60, 150, 0)');
 
   ctx.fillStyle = gradient;
   ctx.beginPath();
-  ctx.arc(planet.position.x, planet.position.y, planet.radius * 1.5, 0, Math.PI * 2);
+  ctx.arc(planet.position.x, planet.position.y, planet.radius * 1.8, 0, Math.PI * 2);
   ctx.fill();
 
-  // Draw planet
-  const planetGradient = ctx.createRadialGradient(
-    planet.position.x - planet.radius * 0.3,
-    planet.position.y - planet.radius * 0.3,
-    planet.radius * 0.1,
-    planet.position.x,
-    planet.position.y,
-    planet.radius
-  );
-  planetGradient.addColorStop(0, '#8B7FFF');
-  planetGradient.addColorStop(1, '#4B3FBF');
+  // Draw planet with Earth image if available
+  if (earthImage) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(planet.position.x, planet.position.y, planet.radius, 0, Math.PI * 2);
+    ctx.clip();
 
-  ctx.fillStyle = planetGradient;
-  ctx.beginPath();
-  ctx.arc(planet.position.x, planet.position.y, planet.radius, 0, Math.PI * 2);
-  ctx.fill();
+    // Draw Earth image inside the circle
+    ctx.drawImage(
+      earthImage,
+      planet.position.x - planet.radius,
+      planet.position.y - planet.radius,
+      planet.radius * 2,
+      planet.radius * 2
+    );
 
-  // Draw orbit line
-  ctx.strokeStyle = 'rgba(100, 200, 255, 0.2)';
+    ctx.restore();
+  } else {
+    // Fallback gradient
+    const planetGradient = ctx.createRadialGradient(
+      planet.position.x - planet.radius * 0.3,
+      planet.position.y - planet.radius * 0.3,
+      planet.radius * 0.1,
+      planet.position.x,
+      planet.position.y,
+      planet.radius
+    );
+    planetGradient.addColorStop(0, '#8B7FFF');
+    planetGradient.addColorStop(1, '#4B3FBF');
+
+    ctx.fillStyle = planetGradient;
+    ctx.beginPath();
+    ctx.arc(planet.position.x, planet.position.y, planet.radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Draw orbit reference lines
+  ctx.strokeStyle = 'rgba(100, 200, 255, 0.15)';
   ctx.lineWidth = 1;
   ctx.setLineDash([5, 5]);
   ctx.beginPath();
@@ -275,17 +299,32 @@ export function renderGame(
   gameState: GameState,
   stars: Array<{ x: number; y: number; size: number; opacity: number }>,
   thrustInputs: ThrustInputs,
-  time: number
+  time: number,
+  backgroundImage: HTMLImageElement | null,
+  earthImage: HTMLImageElement | null
 ) {
-  // Clear canvas
-  ctx.fillStyle = '#000814';
-  ctx.fillRect(0, 0, GAME_CONFIG.canvasWidth, GAME_CONFIG.canvasHeight);
+  // Draw space background image
+  if (backgroundImage) {
+    // Scale image to cover canvas while maintaining aspect ratio
+    const scale = Math.max(
+      GAME_CONFIG.canvasWidth / backgroundImage.width,
+      GAME_CONFIG.canvasHeight / backgroundImage.height
+    );
+    const width = backgroundImage.width * scale;
+    const height = backgroundImage.height * scale;
+    const x = (GAME_CONFIG.canvasWidth - width) / 2;
+    const y = (GAME_CONFIG.canvasHeight - height) / 2;
 
-  // Draw starfield
-  drawStarfield(ctx, stars);
+    ctx.drawImage(backgroundImage, x, y, width, height);
+  } else {
+    // Fallback to solid color
+    ctx.fillStyle = '#000814';
+    ctx.fillRect(0, 0, GAME_CONFIG.canvasWidth, GAME_CONFIG.canvasHeight);
+    drawStarfield(ctx, stars);
+  }
 
   // Draw game objects
-  drawPlanet(ctx, gameState);
+  drawPlanet(ctx, gameState, earthImage);
   drawTrajectoryPrediction(ctx, gameState);
   drawOrbs(ctx, gameState, time);
   drawSatellite(ctx, gameState, thrustInputs);

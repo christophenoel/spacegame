@@ -9,6 +9,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onStart }) => {
   return (
     <div className="home-screen">
       <div className="stars-background"></div>
+      <div className="spacebel-banner">
+        <img src="/logo.svg" alt="Spacebel - Space Systems Engineering" />
+      </div>
       <div className="home-content">
         <h1 className="game-title">ORBITAL RESCUE</h1>
         <div className="subtitle">A Satellite Space Adventure</div>

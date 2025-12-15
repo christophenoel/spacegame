@@ -105,3 +105,21 @@
   border-radius: 5px;
   border: 1px solid rgba(0, 217, 255, 0.3);
 }
+
+.spacebel-logo {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  background: rgba(0, 20, 40, 0.7);
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 217, 255, 0.2);
+}
+
+.spacebel-logo img {
+  height: 40px;
+  width: auto;
+  display: block;
+  opacity: 1;
+}

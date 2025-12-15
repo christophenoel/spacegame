@@ -148,7 +148,7 @@ export function initializeGame(): GameState {
 
   const planet: Planet = {
     position: { x: centerX, y: centerY },
-    radius: 40,
+    radius: 60,
     mass: 1000,
   };
 
