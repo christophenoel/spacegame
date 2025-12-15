@@ -62,13 +62,29 @@ export function updateGameState(
   // Check for orb collection
   const collectedOrbIds = checkOrbCollection(satellite, gameState.orbs);
   let newScore = gameState.score;
+  const newCollectionEffects = [...gameState.collectionEffects];
+  const currentTime = Date.now();
+
   const newOrbs = gameState.orbs.map((orb) => {
     if (collectedOrbIds.includes(orb.id)) {
       newScore += GAME_CONFIG.pointsPerOrb;
+
+      // Add collection effect
+      newCollectionEffects.push({
+        position: { x: orb.position.x, y: orb.position.y },
+        startTime: currentTime,
+        points: GAME_CONFIG.pointsPerOrb,
+      });
+
       return { ...orb, collected: true };
     }
     return orb;
   });
+
+  // Remove old collection effects (older than 1 second)
+  const activeEffects = newCollectionEffects.filter(
+    (effect) => currentTime - effect.startTime < 1000
+  );
 
   // Check win condition
   const allOrbsCollected = newOrbs.every((orb) => orb.collected);
@@ -95,5 +111,6 @@ export function updateGameState(
     orbs: newOrbs,
     score: newScore,
     gameStatus,
+    collectionEffects: activeEffects,
   };
 }

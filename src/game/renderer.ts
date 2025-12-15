@@ -1,10 +1,93 @@
-import { GameState } from '../types/game';
+import { GameState, Satellite, Vector2D } from '../types/game';
 import { GAME_CONFIG } from './constants';
+import { calculateGravity, addVectors, scaleVector } from './physics';
 
 export function drawStarfield(ctx: CanvasRenderingContext2D, stars: Array<{ x: number; y: number; size: number; opacity: number }>) {
   stars.forEach((star) => {
     ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
     ctx.fillRect(star.x, star.y, star.size, star.size);
+  });
+}
+
+function predictTrajectory(gameState: GameState, predictionTime: number, steps: number): Vector2D[] {
+  const points: Vector2D[] = [];
+  let satellite = { ...gameState.satellite };
+  const dt = predictionTime / steps;
+
+  for (let i = 0; i < steps; i++) {
+    points.push({ x: satellite.position.x, y: satellite.position.y });
+
+    // Calculate gravity
+    const gravity = calculateGravity(satellite, gameState.planet);
+
+    // Update velocity with gravity
+    const newVelocity = addVectors(satellite.velocity, scaleVector(gravity, dt));
+
+    // Update position
+    const newPosition = addVectors(satellite.position, scaleVector(newVelocity, dt));
+
+    satellite = {
+      ...satellite,
+      position: newPosition,
+      velocity: newVelocity,
+    };
+  }
+
+  return points;
+}
+
+export function drawTrajectoryPrediction(ctx: CanvasRenderingContext2D, gameState: GameState) {
+  const trajectoryPoints = predictTrajectory(gameState, 2.0, 30); // 2 seconds, 30 points
+
+  ctx.strokeStyle = 'rgba(0, 217, 255, 0.4)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 5]);
+  ctx.beginPath();
+
+  trajectoryPoints.forEach((point, index) => {
+    if (index === 0) {
+      ctx.moveTo(point.x, point.y);
+    } else {
+      ctx.lineTo(point.x, point.y);
+    }
+  });
+
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+export function drawCollectionEffects(ctx: CanvasRenderingContext2D, gameState: GameState) {
+  const currentTime = Date.now();
+
+  gameState.collectionEffects.forEach((effect) => {
+    const elapsed = currentTime - effect.startTime;
+    const progress = elapsed / 1000; // 0 to 1 over 1 second
+
+    if (progress < 1) {
+      // Expanding ring effect
+      const ringRadius = 15 + progress * 30;
+      const opacity = 1 - progress;
+
+      ctx.strokeStyle = `rgba(0, 255, 255, ${opacity})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(effect.position.x, effect.position.y, ringRadius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Score popup
+      const yOffset = -20 - progress * 30;
+      ctx.fillStyle = `rgba(0, 255, 136, ${opacity})`;
+      ctx.font = 'bold 20px "Courier New"';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`+${effect.points}`, effect.position.x, effect.position.y + yOffset);
+
+      // Add a glow effect to the text
+      ctx.shadowColor = 'rgba(0, 255, 136, 0.8)';
+      ctx.shadowBlur = 10;
+      ctx.fillText(`+${effect.points}`, effect.position.x, effect.position.y + yOffset);
+      ctx.shadowBlur = 0;
+    }
   });
 }
 
@@ -203,8 +286,10 @@ export function renderGame(
 
   // Draw game objects
   drawPlanet(ctx, gameState);
+  drawTrajectoryPrediction(ctx, gameState);
   drawOrbs(ctx, gameState, time);
   drawSatellite(ctx, gameState, thrustInputs);
+  drawCollectionEffects(ctx, gameState);
 }
 
 export function generateStars(count: number): Array<{ x: number; y: number; size: number; opacity: number }> {

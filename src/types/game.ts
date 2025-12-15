@@ -23,6 +23,12 @@ export interface Orb {
   collected: boolean;
 }
 
+export interface CollectionEffect {
+  position: Vector2D;
+  startTime: number;
+  points: number;
+}
+
 export interface GameState {
   satellite: Satellite;
   planet: Planet;
@@ -30,6 +36,7 @@ export interface GameState {
   score: number;
   gameStatus: 'playing' | 'won' | 'lost';
   isPaused: boolean;
+  collectionEffects: CollectionEffect[];
 }
 
 export interface GameConfig {

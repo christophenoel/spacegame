@@ -152,13 +152,21 @@ export function initializeGame(): GameState {
     mass: 1000,
   };
 
-  // Generate orbs in a ring around the planet
+  // Generate orbs at various orbital radii around the planet
   const orbs: Orb[] = [];
-  const orbRingRadius = 250;
+  const minOrbitalRadius = 150;
+  const maxOrbitalRadius = 280;
+
   for (let i = 0; i < GAME_CONFIG.numberOfOrbs; i++) {
     const angle = (i / GAME_CONFIG.numberOfOrbs) * Math.PI * 2;
-    const x = centerX + Math.cos(angle) * orbRingRadius;
-    const y = centerY + Math.sin(angle) * orbRingRadius;
+
+    // Vary the orbital radius for each orb
+    // Use a mix of inner and outer orbits
+    const radiusVariation = (i % 3) / 2; // Creates pattern: 0, 0.5, 1, 0, 0.5, 1...
+    const orbitalRadius = minOrbitalRadius + (maxOrbitalRadius - minOrbitalRadius) * radiusVariation;
+
+    const x = centerX + Math.cos(angle) * orbitalRadius;
+    const y = centerY + Math.sin(angle) * orbitalRadius;
 
     orbs.push({
       id: i,
@@ -175,5 +183,6 @@ export function initializeGame(): GameState {
     score: 0,
     gameStatus: 'playing',
     isPaused: false,
+    collectionEffects: [],
   };
 }
