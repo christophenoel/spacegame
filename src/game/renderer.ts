@@ -1,0 +1,176 @@
+import { GameState } from '../types/game';
+import { GAME_CONFIG } from './constants';
+
+export function drawStarfield(ctx: CanvasRenderingContext2D, stars: Array<{ x: number; y: number; size: number; opacity: number }>) {
+  stars.forEach((star) => {
+    ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+    ctx.fillRect(star.x, star.y, star.size, star.size);
+  });
+}
+
+export function drawPlanet(ctx: CanvasRenderingContext2D, gameState: GameState) {
+  const { planet } = gameState;
+
+  // Draw glow
+  const gradient = ctx.createRadialGradient(
+    planet.position.x,
+    planet.position.y,
+    planet.radius * 0.5,
+    planet.position.x,
+    planet.position.y,
+    planet.radius * 1.5
+  );
+  gradient.addColorStop(0, 'rgba(200, 100, 255, 0.3)');
+  gradient.addColorStop(1, 'rgba(100, 50, 200, 0)');
+
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(planet.position.x, planet.position.y, planet.radius * 1.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Draw planet
+  const planetGradient = ctx.createRadialGradient(
+    planet.position.x - planet.radius * 0.3,
+    planet.position.y - planet.radius * 0.3,
+    planet.radius * 0.1,
+    planet.position.x,
+    planet.position.y,
+    planet.radius
+  );
+  planetGradient.addColorStop(0, '#8B7FFF');
+  planetGradient.addColorStop(1, '#4B3FBF');
+
+  ctx.fillStyle = planetGradient;
+  ctx.beginPath();
+  ctx.arc(planet.position.x, planet.position.y, planet.radius, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Draw orbit line
+  ctx.strokeStyle = 'rgba(100, 200, 255, 0.2)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([5, 5]);
+  ctx.beginPath();
+  ctx.arc(planet.position.x, planet.position.y, 200, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+export function drawOrbs(ctx: CanvasRenderingContext2D, gameState: GameState, time: number) {
+  gameState.orbs.forEach((orb) => {
+    if (orb.collected) return;
+
+    // Pulsing effect
+    const pulse = Math.sin(time * 0.003 + orb.id) * 0.2 + 1;
+    const radius = orb.radius * pulse;
+
+    // Draw glow
+    const gradient = ctx.createRadialGradient(
+      orb.position.x,
+      orb.position.y,
+      0,
+      orb.position.x,
+      orb.position.y,
+      radius * 1.5
+    );
+    gradient.addColorStop(0, 'rgba(0, 255, 255, 0.8)');
+    gradient.addColorStop(0.5, 'rgba(0, 255, 255, 0.4)');
+    gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(orb.position.x, orb.position.y, radius * 1.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw orb
+    ctx.fillStyle = '#00FFFF';
+    ctx.beginPath();
+    ctx.arc(orb.position.x, orb.position.y, radius * 0.6, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+export function drawSatellite(
+  ctx: CanvasRenderingContext2D,
+  gameState: GameState,
+  thrustActive: boolean
+) {
+  const { satellite } = gameState;
+  const size = GAME_CONFIG.satelliteSize;
+
+  ctx.save();
+  ctx.translate(satellite.position.x, satellite.position.y);
+  ctx.rotate(satellite.rotation);
+
+  // Draw thrust flame
+  if (thrustActive && satellite.fuel > 0) {
+    ctx.fillStyle = '#FF6600';
+    ctx.beginPath();
+    ctx.moveTo(-size / 2, 0);
+    ctx.lineTo(-size, -size / 4);
+    ctx.lineTo(-size * 1.5, 0);
+    ctx.lineTo(-size, size / 4);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Draw satellite body
+  ctx.fillStyle = '#CCCCCC';
+  ctx.fillRect(-size / 2, -size / 2, size, size);
+
+  // Draw solar panels
+  ctx.fillStyle = '#4444FF';
+  ctx.fillRect(-size / 2 - 8, -size / 2 - 2, 6, size + 4);
+  ctx.fillRect(size / 2 + 2, -size / 2 - 2, 6, size + 4);
+
+  // Draw antenna
+  ctx.strokeStyle = '#888888';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, -size / 2);
+  ctx.lineTo(0, -size);
+  ctx.stroke();
+
+  // Draw direction indicator
+  ctx.fillStyle = '#FF0000';
+  ctx.beginPath();
+  ctx.moveTo(size / 2, 0);
+  ctx.lineTo(size / 2 + 8, -4);
+  ctx.lineTo(size / 2 + 8, 4);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+export function renderGame(
+  ctx: CanvasRenderingContext2D,
+  gameState: GameState,
+  stars: Array<{ x: number; y: number; size: number; opacity: number }>,
+  thrustActive: boolean,
+  time: number
+) {
+  // Clear canvas
+  ctx.fillStyle = '#000814';
+  ctx.fillRect(0, 0, GAME_CONFIG.canvasWidth, GAME_CONFIG.canvasHeight);
+
+  // Draw starfield
+  drawStarfield(ctx, stars);
+
+  // Draw game objects
+  drawPlanet(ctx, gameState);
+  drawOrbs(ctx, gameState, time);
+  drawSatellite(ctx, gameState, thrustActive);
+}
+
+export function generateStars(count: number): Array<{ x: number; y: number; size: number; opacity: number }> {
+  const stars = [];
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * GAME_CONFIG.canvasWidth,
+      y: Math.random() * GAME_CONFIG.canvasHeight,
+      size: Math.random() * 2 + 1,
+      opacity: Math.random() * 0.8 + 0.2,
+    });
+  }
+  return stars;
+}

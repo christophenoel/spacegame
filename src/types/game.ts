@@ -1,0 +1,46 @@
+export interface Vector2D {
+  x: number;
+  y: number;
+}
+
+export interface Satellite {
+  position: Vector2D;
+  velocity: Vector2D;
+  rotation: number; // in radians
+  fuel: number;
+}
+
+export interface Planet {
+  position: Vector2D;
+  radius: number;
+  mass: number;
+}
+
+export interface Orb {
+  id: number;
+  position: Vector2D;
+  radius: number;
+  collected: boolean;
+}
+
+export interface GameState {
+  satellite: Satellite;
+  planet: Planet;
+  orbs: Orb[];
+  score: number;
+  gameStatus: 'playing' | 'won' | 'lost';
+  isPaused: boolean;
+}
+
+export interface GameConfig {
+  canvasWidth: number;
+  canvasHeight: number;
+  satelliteSize: number;
+  maxFuel: number;
+  thrustPower: number;
+  fuelConsumptionRate: number;
+  gravitationalConstant: number;
+  orbRadius: number;
+  numberOfOrbs: number;
+  pointsPerOrb: number;
+}

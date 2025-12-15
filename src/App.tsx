@@ -1,24 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import HomeScreen from './components/HomeScreen';
+import GameScreen from './components/GameScreen';
+import EndScreen from './components/EndScreen';
 import './App.css';
 
+type Screen = 'home' | 'game' | 'end';
+
 function App() {
+  const [currentScreen, setCurrentScreen] = useState<Screen>('home');
+  const [finalScore, setFinalScore] = useState<number>(0);
+  const [gameWon, setGameWon] = useState<boolean>(false);
+
+  const handleStartGame = () => {
+    setCurrentScreen('game');
+  };
+
+  const handleGameEnd = (score: number, won: boolean) => {
+    setFinalScore(score);
+    setGameWon(won);
+    setCurrentScreen('end');
+  };
+
+  const handleRestart = () => {
+    setCurrentScreen('game');
+  };
+
+  const handleBackToMenu = () => {
+    setCurrentScreen('home');
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {currentScreen === 'home' && <HomeScreen onStart={handleStartGame} />}
+      {currentScreen === 'game' && <GameScreen onGameEnd={handleGameEnd} />}
+      {currentScreen === 'end' && (
+        <EndScreen
+          score={finalScore}
+          won={gameWon}
+          onRestart={handleRestart}
+          onBackToMenu={handleBackToMenu}
+        />
+      )}
     </div>
   );
 }

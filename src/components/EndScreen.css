@@ -1,0 +1,136 @@
+.end-screen {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #000814 0%, #001d3d 50%, #003566 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.end-content {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  padding: 50px;
+  background: rgba(0, 20, 40, 0.9);
+  border: 3px solid #00d9ff;
+  border-radius: 15px;
+  box-shadow: 0 0 40px rgba(0, 217, 255, 0.4);
+  text-align: center;
+  color: white;
+}
+
+.result-header {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 25px;
+  text-shadow: 0 0 15px currentColor;
+  letter-spacing: 3px;
+}
+
+.result-header.victory {
+  color: #00ff88;
+  text-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+}
+
+.result-header.defeat {
+  color: #ff4444;
+  text-shadow: 0 0 15px rgba(255, 68, 68, 0.8);
+}
+
+.result-message {
+  margin: 30px 0;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #cccccc;
+}
+
+.result-message p {
+  margin: 10px 0;
+}
+
+.score-display {
+  margin: 40px 0;
+  padding: 30px;
+  background: rgba(0, 50, 100, 0.4);
+  border-radius: 10px;
+  border: 2px solid rgba(0, 217, 255, 0.3);
+}
+
+.score-label {
+  font-size: 1.2rem;
+  color: #88ccff;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.score-value {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #00d9ff;
+  text-shadow: 0 0 20px rgba(0, 217, 255, 0.8);
+}
+
+.score-breakdown {
+  margin: 20px 0;
+  font-size: 0.9rem;
+  color: #aaaaaa;
+  min-height: 20px;
+}
+
+.breakdown-note {
+  font-style: italic;
+}
+
+.end-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 40px;
+}
+
+.retry-button,
+.menu-button {
+  padding: 15px 30px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.retry-button {
+  background: linear-gradient(135deg, #00aa44 0%, #00ff88 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+}
+
+.retry-button:hover {
+  background: linear-gradient(135deg, #00cc55 0%, #00ffaa 100%);
+  box-shadow: 0 6px 20px rgba(0, 255, 136, 0.5);
+  transform: translateY(-2px);
+}
+
+.menu-button {
+  background: linear-gradient(135deg, #0066cc 0%, #00d9ff 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
+}
+
+.menu-button:hover {
+  background: linear-gradient(135deg, #0088ee 0%, #00ffff 100%);
+  box-shadow: 0 6px 20px rgba(0, 217, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.retry-button:active,
+.menu-button:active {
+  transform: translateY(0);
+}
