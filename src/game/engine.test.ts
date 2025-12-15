@@ -28,6 +28,7 @@ const createTestGameState = (): GameState => {
     score: 0,
     gameStatus: 'playing',
     isPaused: false,
+    collectionEffects: [],
   };
 };
 
