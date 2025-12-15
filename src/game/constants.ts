@@ -5,9 +5,9 @@ export const GAME_CONFIG: GameConfig = {
   canvasHeight: 600,
   satelliteSize: 20,
   maxFuel: 100,
-  thrustPower: 0.3,
-  fuelConsumptionRate: 0.5,
-  gravitationalConstant: 5000,
+  thrustPower: 150, // Increased for more responsive controls
+  fuelConsumptionRate: 0.8,
+  gravitationalConstant: 8000, // Increased for more noticeable gravity
   orbRadius: 15,
   numberOfOrbs: 8,
   pointsPerOrb: 100,

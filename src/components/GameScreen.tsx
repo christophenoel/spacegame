@@ -14,6 +14,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [gameState, setGameState] = useState<GameState>(() => initializeGame());
   const [stars] = useState(() => generateStars(100));
+  const gameStateRef = useRef<GameState>(gameState);
   const thrustInputsRef = useRef<ThrustInputs>({
     up: false,
     down: false,
@@ -22,6 +23,11 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
   });
   const lastTimeRef = useRef<number>(0);
   const animationFrameRef = useRef<number | null>(null);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    gameStateRef.current = gameState;
+  }, [gameState]);
 
   const togglePause = useCallback(() => {
     setGameState((prev) => ({
@@ -83,12 +89,15 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
     };
   }, [handleKeyDown, handleKeyUp]);
 
+  // Check for game end
   useEffect(() => {
     if (gameState.gameStatus !== 'playing') {
       onGameEnd(gameState.score, gameState.gameStatus === 'won');
-      return;
     }
+  }, [gameState.gameStatus, gameState.score, onGameEnd]);
 
+  // Game loop
+  useEffect(() => {
     const gameLoop = (currentTime: number) => {
       if (!lastTimeRef.current) {
         lastTimeRef.current = currentTime;
@@ -100,9 +109,9 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
       // Cap delta time to prevent large jumps
       const cappedDeltaTime = Math.min(deltaTime, 0.1);
 
-      // Update game state
+      // Update game state using ref to get current state
       const newState = updateGameState(
-        gameState,
+        gameStateRef.current,
         thrustInputsRef.current,
         cappedDeltaTime
       );
@@ -121,9 +130,11 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
         renderGame(ctx, newState, stars, thrustActive, currentTime);
       }
 
+      // Continue loop
       animationFrameRef.current = requestAnimationFrame(gameLoop);
     };
 
+    // Start the game loop
     animationFrameRef.current = requestAnimationFrame(gameLoop);
 
     return () => {
@@ -131,7 +142,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [gameState, onGameEnd, stars]);
+  }, [stars]); // Only depend on stars, which never changes
 
   const orbsCollected = gameState.orbs.filter((orb) => orb.collected).length;
   const totalOrbs = gameState.orbs.length;
