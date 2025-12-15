@@ -29,6 +29,15 @@ export function distance(p1: Vector2D, p2: Vector2D): number {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
+export function rotateVector(v: Vector2D, angleRadians: number): Vector2D {
+  const cos = Math.cos(angleRadians);
+  const sin = Math.sin(angleRadians);
+  return {
+    x: v.x * cos - v.y * sin,
+    y: v.x * sin + v.y * cos,
+  };
+}
+
 export function calculateGravity(satellite: Satellite, planet: Planet): Vector2D {
   const dx = planet.position.x - satellite.position.x;
   const dy = planet.position.y - satellite.position.y;

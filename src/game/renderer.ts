@@ -89,10 +89,17 @@ export function drawOrbs(ctx: CanvasRenderingContext2D, gameState: GameState, ti
   });
 }
 
+export interface ThrustInputs {
+  up: boolean;
+  down: boolean;
+  left: boolean;
+  right: boolean;
+}
+
 export function drawSatellite(
   ctx: CanvasRenderingContext2D,
   gameState: GameState,
-  thrustActive: boolean
+  thrustInputs: ThrustInputs
 ) {
   const { satellite } = gameState;
   const size = GAME_CONFIG.satelliteSize;
@@ -101,16 +108,54 @@ export function drawSatellite(
   ctx.translate(satellite.position.x, satellite.position.y);
   ctx.rotate(satellite.rotation);
 
-  // Draw thrust flame
-  if (thrustActive && satellite.fuel > 0) {
+  // Draw thrust flames based on which thrusters are active
+  if (satellite.fuel > 0) {
     ctx.fillStyle = '#FF6600';
-    ctx.beginPath();
-    ctx.moveTo(-size / 2, 0);
-    ctx.lineTo(-size, -size / 4);
-    ctx.lineTo(-size * 1.5, 0);
-    ctx.lineTo(-size, size / 4);
-    ctx.closePath();
-    ctx.fill();
+    const flameSize = size * 0.7;
+
+    // Forward thrust (up key) - flame at back
+    if (thrustInputs.up) {
+      ctx.fillStyle = '#FF6600';
+      ctx.beginPath();
+      ctx.moveTo(-size / 2, 0);
+      ctx.lineTo(-size / 2 - flameSize, -size / 4);
+      ctx.lineTo(-size / 2 - flameSize, size / 4);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Backward thrust (down key) - flame at front
+    if (thrustInputs.down) {
+      ctx.fillStyle = '#FF6600';
+      ctx.beginPath();
+      ctx.moveTo(size / 2, 0);
+      ctx.lineTo(size / 2 + flameSize, -size / 4);
+      ctx.lineTo(size / 2 + flameSize, size / 4);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Left thrust - flame on right side
+    if (thrustInputs.left) {
+      ctx.fillStyle = '#FF6600';
+      ctx.beginPath();
+      ctx.moveTo(0, size / 2);
+      ctx.lineTo(-size / 4, size / 2 + flameSize);
+      ctx.lineTo(size / 4, size / 2 + flameSize);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Right thrust - flame on left side
+    if (thrustInputs.right) {
+      ctx.fillStyle = '#FF6600';
+      ctx.beginPath();
+      ctx.moveTo(0, -size / 2);
+      ctx.lineTo(-size / 4, -size / 2 - flameSize);
+      ctx.lineTo(size / 4, -size / 2 - flameSize);
+      ctx.closePath();
+      ctx.fill();
+    }
   }
 
   // Draw satellite body
@@ -146,7 +191,7 @@ export function renderGame(
   ctx: CanvasRenderingContext2D,
   gameState: GameState,
   stars: Array<{ x: number; y: number; size: number; opacity: number }>,
-  thrustActive: boolean,
+  thrustInputs: ThrustInputs,
   time: number
 ) {
   // Clear canvas
@@ -159,7 +204,7 @@ export function renderGame(
   // Draw game objects
   drawPlanet(ctx, gameState);
   drawOrbs(ctx, gameState, time);
-  drawSatellite(ctx, gameState, thrustActive);
+  drawSatellite(ctx, gameState, thrustInputs);
 }
 
 export function generateStars(count: number): Array<{ x: number; y: number; size: number; opacity: number }> {

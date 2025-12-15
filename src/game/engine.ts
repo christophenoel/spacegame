@@ -6,6 +6,7 @@ import {
   checkOrbCollection,
   applyThrust,
   createVector,
+  rotateVector,
 } from './physics';
 import { GAME_CONFIG } from './constants';
 
@@ -27,22 +28,26 @@ export function updateGameState(
 
   let { satellite } = gameState;
 
-  // Apply thrust based on inputs
-  const thrustVector = createVector(0, 0);
-  if (thrustInputs.up) thrustVector.y -= 1;
-  if (thrustInputs.down) thrustVector.y += 1;
-  if (thrustInputs.left) thrustVector.x -= 1;
-  if (thrustInputs.right) thrustVector.x += 1;
+  // Apply thrust based on inputs (in satellite-relative coordinates)
+  // In satellite local space: forward = (1, 0), left = (0, -1)
+  const localThrustVector = createVector(0, 0);
+  if (thrustInputs.up) localThrustVector.x += 1; // Forward
+  if (thrustInputs.down) localThrustVector.x -= 1; // Backward
+  if (thrustInputs.left) localThrustVector.y -= 1; // Left
+  if (thrustInputs.right) localThrustVector.y += 1; // Right
 
   // Normalize diagonal movement
   const thrustMagnitude = Math.sqrt(
-    thrustVector.x * thrustVector.x + thrustVector.y * thrustVector.y
+    localThrustVector.x * localThrustVector.x + localThrustVector.y * localThrustVector.y
   );
   if (thrustMagnitude > 0) {
-    thrustVector.x /= thrustMagnitude;
-    thrustVector.y /= thrustMagnitude;
+    localThrustVector.x /= thrustMagnitude;
+    localThrustVector.y /= thrustMagnitude;
 
-    const thrustResult = applyThrust(satellite, thrustVector, deltaTime);
+    // Rotate thrust vector to world space based on satellite orientation
+    const worldThrustVector = rotateVector(localThrustVector, satellite.rotation);
+
+    const thrustResult = applyThrust(satellite, worldThrustVector, deltaTime);
     satellite = thrustResult.satellite;
   }
 

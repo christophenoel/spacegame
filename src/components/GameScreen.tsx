@@ -121,13 +121,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext('2d');
       if (ctx && canvas) {
-        const thrustActive =
-          thrustInputsRef.current.up ||
-          thrustInputsRef.current.down ||
-          thrustInputsRef.current.left ||
-          thrustInputsRef.current.right;
-
-        renderGame(ctx, newState, stars, thrustActive, currentTime);
+        renderGame(ctx, newState, stars, thrustInputsRef.current, currentTime);
       }
 
       // Continue loop
