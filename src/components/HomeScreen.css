@@ -4,11 +4,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: url('/space-background.jpg') center center / cover no-repeat,
-              linear-gradient(135deg, #000814 0%, #001d3d 50%, #003566 100%);
+  background: linear-gradient(135deg, #000814 0%, #001d3d 50%, #003566 100%);
   position: relative;
   overflow: hidden;
 }
+
 
 .stars-background {
   position: absolute;
@@ -18,11 +18,6 @@
   height: 100%;
   background: rgba(0, 8, 20, 0.4);
   backdrop-filter: blur(1px);
-}
-
-@keyframes twinkle {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 0.8; }
 }
 
 .spacebel-banner {

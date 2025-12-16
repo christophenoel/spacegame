@@ -7,7 +7,10 @@ interface HomeScreenProps {
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ onStart }) => {
   return (
-    <div className="home-screen">
+    <div
+      className="home-screen"
+      style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/space-background.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+    >
       <div className="stars-background"></div>
       <div className="spacebel-banner">
         <img src="/logo.svg" alt="Spacebel - Space Systems Engineering" />

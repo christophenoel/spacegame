@@ -10,8 +10,10 @@ interface EndScreenProps {
 
 const EndScreen: React.FC<EndScreenProps> = ({ score, won, onRestart, onBackToMenu }) => {
   return (
-    <div className="end-screen">
-      <div className="stars-background"></div>
+    <div
+      className="end-screen"
+      style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/space-background.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+    >
       <div className="end-content">
         <div className={`result-header ${won ? 'victory' : 'defeat'}`}>
           {won ? 'MISSION ACCOMPLISHED' : 'MISSION FAILED'}
