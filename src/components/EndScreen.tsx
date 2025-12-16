@@ -22,13 +22,13 @@ const EndScreen: React.FC<EndScreenProps> = ({ score, won, onRestart, onBackToMe
         <div className="result-message">
           {won ? (
             <>
-              <p>Outstanding work, pilot! You've successfully collected all energy orbs and saved the day.</p>
-              <p>Your satellite navigation skills are exceptional!</p>
+              <p>Outstanding! All debris collected and Earth's orbit is 0.0001% cleaner.</p>
+              <p>Spacebel management is moderately impressed. You might even get a bonus... someday.</p>
             </>
           ) : (
             <>
-              <p>Mission terminated. Your satellite has been lost.</p>
-              <p>Review your approach and try again, pilot.</p>
+              <p>Well, this is awkward. You became part of the debris problem.</p>
+              <p>Spacebel's insurance department has been notified. Please try again before they send the bill.</p>
             </>
           )}
         </div>

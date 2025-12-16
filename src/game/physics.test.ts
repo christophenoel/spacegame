@@ -71,7 +71,7 @@ describe('Physics Calculations', () => {
       position: { x: 100, y: 100 },
       velocity: { x: 0, y: 0 },
       rotation: 0,
-      fuel: 100,
+      battery: 100,
     };
     const planet: Planet = {
       position: { x: 100, y: 100 },
@@ -88,7 +88,7 @@ describe('Physics Calculations', () => {
       position: { x: 200, y: 100 },
       velocity: { x: 0, y: 0 },
       rotation: 0,
-      fuel: 100,
+      battery: 100,
     };
     const planet: Planet = {
       position: { x: 100, y: 100 },
@@ -105,31 +105,31 @@ describe('Physics Calculations', () => {
       position: { x: 100, y: 100 },
       velocity: { x: 0, y: 0 },
       rotation: 0,
-      fuel: 100,
+      battery: 100,
     };
     const thrust = createVector(1, 0);
     const deltaTime = 1;
     const result = applyThrust(satellite, thrust, deltaTime);
 
     expect(result.satellite.velocity.x).toBeGreaterThan(0);
-    expect(result.satellite.fuel).toBeLessThan(100);
-    expect(result.fuelUsed).toBeGreaterThan(0);
+    expect(result.satellite.battery).toBeLessThan(100);
+    expect(result.batteryUsed).toBeGreaterThan(0);
   });
 
-  test('applyThrust does nothing when fuel is empty', () => {
+  test('applyThrust does nothing when battery is empty', () => {
     const satellite: Satellite = {
       position: { x: 100, y: 100 },
       velocity: { x: 0, y: 0 },
       rotation: 0,
-      fuel: 0,
+      battery: 0,
     };
     const thrust = createVector(1, 0);
     const deltaTime = 1;
     const result = applyThrust(satellite, thrust, deltaTime);
 
     expect(result.satellite.velocity.x).toBe(0);
-    expect(result.satellite.fuel).toBe(0);
-    expect(result.fuelUsed).toBe(0);
+    expect(result.satellite.battery).toBe(0);
+    expect(result.batteryUsed).toBe(0);
   });
 
   test('updateSatellitePosition updates position based on velocity', () => {
@@ -137,7 +137,7 @@ describe('Physics Calculations', () => {
       position: { x: 100, y: 100 },
       velocity: { x: 10, y: 5 },
       rotation: 0,
-      fuel: 100,
+      battery: 100,
     };
     const planet: Planet = {
       position: { x: 1000, y: 1000 }, // Far away to minimize gravity effect
@@ -158,7 +158,7 @@ describe('Collision Detection', () => {
       position: { x: 110, y: 100 },
       velocity: { x: 0, y: 0 },
       rotation: 0,
-      fuel: 100,
+      battery: 100,
     };
     const planet: Planet = {
       position: { x: 100, y: 100 },
@@ -173,7 +173,7 @@ describe('Collision Detection', () => {
       position: { x: 200, y: 200 },
       velocity: { x: 0, y: 0 },
       rotation: 0,
-      fuel: 100,
+      battery: 100,
     };
     const planet: Planet = {
       position: { x: 100, y: 100 },
@@ -188,9 +188,9 @@ describe('Collision Detection', () => {
       position: { x: -100, y: 100 },
       velocity: { x: 0, y: 0 },
       rotation: 0,
-      fuel: 100,
+      battery: 100,
     };
-    expect(checkOutOfBounds(satellite)).toBe(true);
+    expect(checkOutOfBounds(satellite, GAME_CONFIG.canvasWidth, GAME_CONFIG.canvasHeight)).toBe(true);
   });
 
   test('checkOutOfBounds returns false when in bounds', () => {
@@ -198,9 +198,9 @@ describe('Collision Detection', () => {
       position: { x: 400, y: 300 },
       velocity: { x: 0, y: 0 },
       rotation: 0,
-      fuel: 100,
+      battery: 100,
     };
-    expect(checkOutOfBounds(satellite)).toBe(false);
+    expect(checkOutOfBounds(satellite, GAME_CONFIG.canvasWidth, GAME_CONFIG.canvasHeight)).toBe(false);
   });
 
   test('checkOrbCollection detects orb collection', () => {
@@ -208,11 +208,11 @@ describe('Collision Detection', () => {
       position: { x: 100, y: 100 },
       velocity: { x: 0, y: 0 },
       rotation: 0,
-      fuel: 100,
+      battery: 100,
     };
     const orbs: Orb[] = [
-      { id: 1, position: { x: 105, y: 105 }, radius: 15, collected: false },
-      { id: 2, position: { x: 500, y: 500 }, radius: 15, collected: false },
+      { id: 1, position: { x: 105, y: 105 }, velocity: { x: 0, y: 0 }, radius: 15, collected: false },
+      { id: 2, position: { x: 500, y: 500 }, velocity: { x: 0, y: 0 }, radius: 15, collected: false },
     ];
     const collectedIds = checkOrbCollection(satellite, orbs);
     expect(collectedIds).toContain(1);
@@ -224,10 +224,10 @@ describe('Collision Detection', () => {
       position: { x: 100, y: 100 },
       velocity: { x: 0, y: 0 },
       rotation: 0,
-      fuel: 100,
+      battery: 100,
     };
     const orbs: Orb[] = [
-      { id: 1, position: { x: 105, y: 105 }, radius: 15, collected: true },
+      { id: 1, position: { x: 105, y: 105 }, velocity: { x: 0, y: 0 }, radius: 15, collected: true },
     ];
     const collectedIds = checkOrbCollection(satellite, orbs);
     expect(collectedIds).toHaveLength(0);
@@ -239,7 +239,7 @@ describe('Game Initialization', () => {
     const gameState = initializeGame();
 
     expect(gameState.satellite).toBeDefined();
-    expect(gameState.satellite.fuel).toBe(GAME_CONFIG.maxFuel);
+    expect(gameState.satellite.battery).toBe(GAME_CONFIG.maxBattery);
     expect(gameState.planet).toBeDefined();
     expect(gameState.orbs).toHaveLength(GAME_CONFIG.numberOfOrbs);
     expect(gameState.score).toBe(0);

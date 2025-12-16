@@ -4,9 +4,9 @@ export const GAME_CONFIG: GameConfig = {
   canvasWidth: 800,
   canvasHeight: 600,
   satelliteSize: 20,
-  maxFuel: 100,
+  maxBattery: 100,
   thrustPower: 150, // Increased for more responsive controls
-  fuelConsumptionRate: 0.8,
+  batteryConsumptionRate: 0.8,
   gravitationalConstant: 8000, // Increased for more noticeable gravity
   orbRadius: 15,
   numberOfOrbs: 8,
@@ -19,4 +19,6 @@ export const KEYS = {
   LEFT: ['ArrowLeft', 'a', 'A'],
   RIGHT: ['ArrowRight', 'd', 'D'],
   PAUSE: [' ', 'Escape'],
+  SOLAR_PANELS: ['p', 'P'],
+  TRAJECTORY: ['t', 'T'],
 };

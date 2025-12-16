@@ -7,7 +7,7 @@ const createTestGameState = (): GameState => {
     position: { x: 400, y: 300 },
     velocity: { x: 0, y: 0 },
     rotation: 0,
-    fuel: 100,
+    battery: 100,
   };
 
   const planet: Planet = {
@@ -17,8 +17,8 @@ const createTestGameState = (): GameState => {
   };
 
   const orbs: Orb[] = [
-    { id: 1, position: { x: 500, y: 300 }, radius: 15, collected: false },
-    { id: 2, position: { x: 600, y: 300 }, radius: 15, collected: false },
+    { id: 1, position: { x: 500, y: 300 }, velocity: { x: 0, y: 0 }, radius: 15, collected: false },
+    { id: 2, position: { x: 600, y: 300 }, velocity: { x: 0, y: 0 }, radius: 15, collected: false },
   ];
 
   return {
@@ -29,6 +29,10 @@ const createTestGameState = (): GameState => {
     gameStatus: 'playing',
     isPaused: false,
     collectionEffects: [],
+    solarPanelsDeployed: false,
+    solarPanelDeployment: 0.3,
+    showTrajectoryPrediction: true,
+    sunAngle: 0,
   };
 };
 
@@ -72,7 +76,7 @@ describe('Game Engine', () => {
     const updated = updateGameState(gameState, thrust, 1);
 
     expect(updated.satellite.velocity.x).toBeGreaterThan(0);
-    expect(updated.satellite.fuel).toBeLessThan(100);
+    expect(updated.satellite.battery).toBeLessThan(100);
   });
 
   test('updateGameState applies diagonal thrust correctly', () => {
@@ -131,7 +135,7 @@ describe('Game Engine', () => {
 
   test('updateGameState adds fuel bonus to score when won', () => {
     const gameState = createTestGameState();
-    gameState.satellite.fuel = 50;
+    gameState.satellite.battery = 50;
     gameState.score = GAME_CONFIG.numberOfOrbs * GAME_CONFIG.pointsPerOrb; // Already have orb points
     gameState.orbs.forEach((orb) => (orb.collected = true));
 
@@ -174,18 +178,18 @@ describe('Game Engine', () => {
     expect(updated.satellite.position.y).not.toBe(initialY);
   });
 
-  test('updateGameState does not consume fuel without thrust', () => {
+  test('updateGameState does not consume battery without thrust', () => {
     const gameState = createTestGameState();
-    const initialFuel = gameState.satellite.fuel;
+    const initialBattery = gameState.satellite.battery;
 
     const updated = updateGameState(gameState, noThrust, 1);
 
-    expect(updated.satellite.fuel).toBe(initialFuel);
+    expect(updated.satellite.battery).toBe(initialBattery);
   });
 
-  test('updateGameState prevents fuel from going negative', () => {
+  test('updateGameState prevents battery from going negative', () => {
     const gameState = createTestGameState();
-    gameState.satellite.fuel = 0.1;
+    gameState.satellite.battery = 0.1;
     const thrust: ThrustInputs = {
       up: true,
       down: true,
@@ -195,6 +199,6 @@ describe('Game Engine', () => {
 
     const updated = updateGameState(gameState, thrust, 10);
 
-    expect(updated.satellite.fuel).toBeGreaterThanOrEqual(0);
+    expect(updated.satellite.battery).toBeGreaterThanOrEqual(0);
   });
 });

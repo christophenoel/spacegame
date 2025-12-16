@@ -56,22 +56,22 @@ export function applyThrust(
   satellite: Satellite,
   direction: Vector2D,
   deltaTime: number
-): { satellite: Satellite; fuelUsed: number } {
-  if (satellite.fuel <= 0) {
-    return { satellite, fuelUsed: 0 };
+): { satellite: Satellite; batteryUsed: number } {
+  if (satellite.battery <= 0) {
+    return { satellite, batteryUsed: 0 };
   }
 
   const thrust = scaleVector(direction, GAME_CONFIG.thrustPower * deltaTime);
   const newVelocity = addVectors(satellite.velocity, thrust);
-  const fuelUsed = GAME_CONFIG.fuelConsumptionRate * deltaTime;
+  const batteryUsed = GAME_CONFIG.batteryConsumptionRate * deltaTime;
 
   return {
     satellite: {
       ...satellite,
       velocity: newVelocity,
-      fuel: Math.max(0, satellite.fuel - fuelUsed),
+      battery: Math.max(0, satellite.battery - batteryUsed),
     },
-    fuelUsed,
+    batteryUsed,
   };
 }
 
@@ -102,15 +102,15 @@ export function checkCollisionWithPlanet(satellite: Satellite, planet: Planet): 
   return dist < planet.radius + GAME_CONFIG.satelliteSize / 2;
 }
 
-export function checkOutOfBounds(satellite: Satellite): boolean {
+export function checkOutOfBounds(satellite: Satellite, canvasWidth: number, canvasHeight: number): boolean {
   const { x, y } = satellite.position;
   const margin = GAME_CONFIG.satelliteSize;
 
   return (
     x < -margin ||
-    x > GAME_CONFIG.canvasWidth + margin ||
+    x > canvasWidth + margin ||
     y < -margin ||
-    y > GAME_CONFIG.canvasHeight + margin
+    y > canvasHeight + margin
   );
 }
 
@@ -129,9 +129,49 @@ export function checkOrbCollection(satellite: Satellite, orbs: Orb[]): number[] 
   return collectedIds;
 }
 
-export function initializeGame(): GameState {
-  const centerX = GAME_CONFIG.canvasWidth / 2;
-  const centerY = GAME_CONFIG.canvasHeight / 2;
+export function updateOrbPosition(
+  orb: Orb,
+  planet: Planet,
+  deltaTime: number
+): Orb {
+  // Don't update collected orbs
+  if (orb.collected) {
+    return orb;
+  }
+
+  // Use simple circular orbit motion for stable, slow-moving debris
+  // Calculate current angle and radius from planet center
+  const dx = orb.position.x - planet.position.x;
+  const dy = orb.position.y - planet.position.y;
+  const currentRadius = Math.sqrt(dx * dx + dy * dy);
+  const currentAngle = Math.atan2(dy, dx);
+
+  // Very slow angular velocity (0.05 radians per second = ~18 seconds per full orbit)
+  const angularVelocity = 0.05;
+  const newAngle = currentAngle + angularVelocity * deltaTime;
+
+  // Calculate new position on the circular orbit
+  const newPosition = {
+    x: planet.position.x + Math.cos(newAngle) * currentRadius,
+    y: planet.position.y + Math.sin(newAngle) * currentRadius,
+  };
+
+  // Calculate velocity vector (tangent to the circle)
+  const newVelocity = {
+    x: -Math.sin(newAngle) * currentRadius * angularVelocity,
+    y: Math.cos(newAngle) * currentRadius * angularVelocity,
+  };
+
+  return {
+    ...orb,
+    position: newPosition,
+    velocity: newVelocity,
+  };
+}
+
+export function initializeGame(canvasWidth?: number, canvasHeight?: number): GameState {
+  const centerX = (canvasWidth || GAME_CONFIG.canvasWidth) / 2;
+  const centerY = (canvasHeight || GAME_CONFIG.canvasHeight) / 2;
 
   // Initialize satellite in orbit
   const orbitalRadius = 200;
@@ -143,19 +183,26 @@ export function initializeGame(): GameState {
     position: { x: centerX + orbitalRadius, y: centerY },
     velocity: { x: 0, y: orbitalSpeed },
     rotation: 0,
-    fuel: GAME_CONFIG.maxFuel,
+    battery: GAME_CONFIG.maxBattery,
   };
 
   const planet: Planet = {
     position: { x: centerX, y: centerY },
-    radius: 60,
+    radius: 140,
     mass: 1000,
   };
 
   // Generate orbs at various orbital radii around the planet
   const orbs: Orb[] = [];
-  const minOrbitalRadius = 150;
-  const maxOrbitalRadius = 280;
+  const minOrbitalRadius = 200;
+  const maxOrbitalRadius = 350;
+
+  // Define various debris sizes (small, medium, large)
+  const debrisSizes = [10, 12, 15, 18, 20, 12, 16, 14]; // Varied sizes for 8 debris
+
+  // Define speed multipliers for very slow, regular orbital speeds (0.15 to 0.25 range)
+  // Much slower than satellite for visible but gentle motion
+  const speedMultipliers = [0.18, 0.20, 0.19, 0.21, 0.17, 0.22, 0.19, 0.20];
 
   for (let i = 0; i < GAME_CONFIG.numberOfOrbs; i++) {
     const angle = (i / GAME_CONFIG.numberOfOrbs) * Math.PI * 2;
@@ -168,10 +215,24 @@ export function initializeGame(): GameState {
     const x = centerX + Math.cos(angle) * orbitalRadius;
     const y = centerY + Math.sin(angle) * orbitalRadius;
 
+    // Calculate orbital velocity (tangent to radius vector)
+    // Base orbital speed from physics: v = sqrt(GM/r)
+    const baseOrbitalSpeed = Math.sqrt(
+      (GAME_CONFIG.gravitationalConstant * planet.mass) / orbitalRadius
+    );
+
+    // Apply speed multiplier for variation
+    const orbitalSpeed = baseOrbitalSpeed * speedMultipliers[i];
+
+    // Velocity is perpendicular to radius (tangent to orbit)
+    const vx = -Math.sin(angle) * orbitalSpeed;
+    const vy = Math.cos(angle) * orbitalSpeed;
+
     orbs.push({
       id: i,
       position: { x, y },
-      radius: GAME_CONFIG.orbRadius,
+      velocity: { x: vx, y: vy },
+      radius: debrisSizes[i] || GAME_CONFIG.orbRadius,
       collected: false,
     });
   }
@@ -184,5 +245,9 @@ export function initializeGame(): GameState {
     gameStatus: 'playing',
     isPaused: false,
     collectionEffects: [],
+    solarPanelsDeployed: false,
+    solarPanelDeployment: 0.3, // Start slightly deployed
+    showTrajectoryPrediction: true,
+    sunAngle: Math.PI * 0.25, // Start with sun at 45 degrees
   };
 }

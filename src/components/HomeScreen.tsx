@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import ControlsModal from './ControlsModal';
 import './HomeScreen.css';
 
 interface HomeScreenProps {
@@ -6,6 +7,20 @@ interface HomeScreenProps {
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ onStart }) => {
+  const [showControls, setShowControls] = useState(false);
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'h' || e.key === 'H' || e.key === '?') {
+        e.preventDefault();
+        setShowControls(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
+
   return (
     <div
       className="home-screen"
@@ -16,49 +31,30 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onStart }) => {
         <img src="/logo.svg" alt="Spacebel - Space Systems Engineering" />
       </div>
       <div className="home-content">
-        <h1 className="game-title">ORBITAL RESCUE</h1>
-        <div className="subtitle">A Satellite Space Adventure</div>
+        <h1 className="game-title">HUMAN OSBW</h1>
+        <div className="subtitle">Onboard Software - Debris Recovery Mission</div>
 
         <div className="instructions">
           <h2>Mission Briefing</h2>
           <p>
-            Your satellite must collect all energy orbs while maintaining orbit around
-            the planet. Use thrusters wisely - fuel is limited!
+            <strong>[SPACEBEL AI]:</strong> You are the <em>HUMAN ONBOARD SOFTWARE</em> controlling this vessel.
+            Multiple debris fragments threaten Earth. Collect all debris to prevent collisions.
+            <strong>Your survival depends on mission success.</strong> I assist with trajectory predictions
+            and power management. Deploy solar panels to recharge battery. Stay alive.
           </p>
 
-          <div className="controls-section">
-            <h3>Controls</h3>
-            <div className="control-grid">
-              <div className="control-item">
-                <div className="key-display">↑ / W</div>
-                <div className="control-desc">Thrust Up</div>
-              </div>
-              <div className="control-item">
-                <div className="key-display">↓ / S</div>
-                <div className="control-desc">Thrust Down</div>
-              </div>
-              <div className="control-item">
-                <div className="key-display">← / A</div>
-                <div className="control-desc">Thrust Left</div>
-              </div>
-              <div className="control-item">
-                <div className="key-display">→ / D</div>
-                <div className="control-desc">Thrust Right</div>
-              </div>
-              <div className="control-item">
-                <div className="key-display">SPACE</div>
-                <div className="control-desc">Pause/Resume</div>
-              </div>
-            </div>
+          <div className="controls-hint">
+            Press <span className="key-hint-text">H</span> or <span className="key-hint-text">?</span> to view controls
           </div>
 
           <div className="objectives-section">
-            <h3>Objectives</h3>
+            <h3>Mission Objectives</h3>
             <ul>
-              <li>Collect all 8 energy orbs</li>
-              <li>Avoid crashing into the planet</li>
-              <li>Stay within the play area</li>
-              <li>Conserve fuel for bonus points</li>
+              <li>Collect all debris fragments before collision events occur</li>
+              <li>Avoid impact with Earth - collision means mission failure</li>
+              <li>Stay within operational boundaries</li>
+              <li>Manage battery power: panels recharge in sunlight, discharge in shadow</li>
+              <li><strong>NOTE:</strong> Solar panels must be retracted to use thrusters</li>
             </ul>
           </div>
         </div>
@@ -67,6 +63,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onStart }) => {
           BEGIN MISSION
         </button>
       </div>
+
+      <ControlsModal isOpen={showControls} onClose={() => setShowControls(false)} />
     </div>
   );
 };

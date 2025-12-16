@@ -7,7 +7,7 @@ export interface Satellite {
   position: Vector2D;
   velocity: Vector2D;
   rotation: number; // in radians
-  fuel: number;
+  battery: number;
 }
 
 export interface Planet {
@@ -19,6 +19,7 @@ export interface Planet {
 export interface Orb {
   id: number;
   position: Vector2D;
+  velocity: Vector2D;
   radius: number;
   collected: boolean;
 }
@@ -37,15 +38,19 @@ export interface GameState {
   gameStatus: 'playing' | 'won' | 'lost';
   isPaused: boolean;
   collectionEffects: CollectionEffect[];
+  solarPanelsDeployed: boolean;
+  solarPanelDeployment: number; // 0 = retracted, 1 = fully deployed
+  showTrajectoryPrediction: boolean;
+  sunAngle: number; // Angle in radians for sun position (rotates slowly)
 }
 
 export interface GameConfig {
   canvasWidth: number;
   canvasHeight: number;
   satelliteSize: number;
-  maxFuel: number;
+  maxBattery: number;
   thrustPower: number;
-  fuelConsumptionRate: number;
+  batteryConsumptionRate: number;
   gravitationalConstant: number;
   orbRadius: number;
   numberOfOrbs: number;

@@ -42,93 +42,108 @@
   position: relative;
   z-index: 1;
   max-width: 700px;
-  padding: 40px;
+  max-height: 90vh;
+  padding: 30px;
   background: rgba(0, 20, 40, 0.85);
   border: 2px solid #00d9ff;
   border-radius: 10px;
   box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
   color: white;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 217, 255, 0.5) rgba(0, 50, 100, 0.3);
+}
+
+/* Custom scrollbar for webkit browsers */
+.home-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.home-content::-webkit-scrollbar-track {
+  background: rgba(0, 50, 100, 0.3);
+  border-radius: 4px;
+}
+
+.home-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 217, 255, 0.5);
+  border-radius: 4px;
+}
+
+.home-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 217, 255, 0.7);
 }
 
 .game-title {
-  font-size: 3.5rem;
+  font-size: 2.8rem;
   text-align: center;
   color: #00d9ff;
   text-shadow: 0 0 10px rgba(0, 217, 255, 0.8);
-  margin-bottom: 10px;
-  letter-spacing: 4px;
+  margin-bottom: 8px;
+  letter-spacing: 3px;
 }
 
 .subtitle {
   text-align: center;
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #88ccff;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .instructions {
-  margin: 30px 0;
+  margin: 20px 0;
 }
 
 .instructions h2 {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   color: #00d9ff;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   text-align: center;
 }
 
 .instructions p {
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: 0.9rem;
+  line-height: 1.5;
   color: #cccccc;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   text-align: center;
 }
 
-.controls-section,
+.controls-hint {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #88ccff;
+  margin: 15px 0;
+  padding: 10px;
+  background: rgba(0, 100, 200, 0.2);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 217, 255, 0.3);
+}
+
+.key-hint-text {
+  display: inline-block;
+  background: rgba(0, 100, 200, 0.5);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #00d9ff;
+  color: #00d9ff;
+  font-weight: bold;
+  font-size: 0.8rem;
+  margin: 0 2px;
+}
+
 .objectives-section {
-  margin: 25px 0;
-  padding: 20px;
+  margin: 15px 0;
+  padding: 15px;
   background: rgba(0, 50, 100, 0.3);
   border-radius: 8px;
   border: 1px solid rgba(0, 217, 255, 0.2);
 }
 
-.controls-section h3,
 .objectives-section h3 {
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #00d9ff;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   text-align: center;
-}
-
-.control-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-}
-
-.control-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.key-display {
-  background: rgba(0, 100, 200, 0.4);
-  padding: 8px 16px;
-  border-radius: 5px;
-  border: 2px solid #00d9ff;
-  font-weight: bold;
-  color: #00d9ff;
-  min-width: 80px;
-  text-align: center;
-}
-
-.control-desc {
-  font-size: 0.9rem;
-  color: #aaaaaa;
 }
 
 .objectives-section ul {
@@ -137,10 +152,11 @@
 }
 
 .objectives-section li {
-  padding: 8px 0;
+  padding: 5px 0;
   color: #cccccc;
   position: relative;
-  padding-left: 25px;
+  padding-left: 20px;
+  font-size: 0.85rem;
 }
 
 .objectives-section li::before {
@@ -148,13 +164,14 @@
   position: absolute;
   left: 0;
   color: #00d9ff;
+  font-size: 0.9rem;
 }
 
 .start-button {
   display: block;
   width: 100%;
-  padding: 15px 30px;
-  font-size: 1.5rem;
+  padding: 12px 25px;
+  font-size: 1.2rem;
   font-weight: bold;
   color: white;
   background: linear-gradient(135deg, #0066cc 0%, #00d9ff 100%);
@@ -165,7 +182,7 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   box-shadow: 0 4px 15px rgba(0, 217, 255, 0.4);
   font-family: 'Courier New', monospace;
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 .start-button:hover {
@@ -177,4 +194,343 @@
 .start-button:active {
   transform: translateY(0);
   box-shadow: 0 2px 10px rgba(0, 217, 255, 0.4);
+}
+
+/* Responsive breakpoints for different screen sizes */
+
+/* Large screens (1600px+) */
+@media (min-width: 1600px) {
+  .home-content {
+    max-width: 900px;
+    padding: 40px;
+  }
+
+  .game-title {
+    font-size: 3.2rem;
+  }
+
+  .subtitle {
+    font-size: 1.2rem;
+  }
+
+  .instructions h2 {
+    font-size: 1.4rem;
+  }
+
+  .instructions p {
+    font-size: 1rem;
+  }
+
+  .objectives-section h3 {
+    font-size: 1.1rem;
+  }
+
+  .start-button {
+    font-size: 1.3rem;
+    padding: 14px 28px;
+  }
+
+  .controls-hint {
+    font-size: 0.9rem;
+    padding: 12px;
+  }
+
+  .spacebel-banner img {
+    height: 70px;
+  }
+}
+
+/* Medium-large screens (1200px - 1600px) - default styles */
+
+/* Smaller laptops (1024px - 1200px) */
+@media (max-width: 1200px) {
+  .home-content {
+    max-width: 600px;
+    padding: 28px;
+  }
+
+  .game-title {
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+
+  .instructions h2 {
+    font-size: 1.1rem;
+  }
+
+  .instructions p {
+    font-size: 0.85rem;
+  }
+
+  .objectives-section h3 {
+    font-size: 0.95rem;
+  }
+
+  .objectives-section li {
+    font-size: 0.8rem;
+  }
+
+  .start-button {
+    font-size: 1.1rem;
+    padding: 10px 22px;
+  }
+
+  .controls-hint {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+
+  .spacebel-banner {
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 24px;
+  }
+
+  .spacebel-banner img {
+    height: 50px;
+  }
+}
+
+/* Small laptops (900px - 1024px) */
+@media (max-width: 1024px) {
+  .home-content {
+    max-width: 550px;
+    padding: 25px;
+  }
+
+  .game-title {
+    font-size: 2.2rem;
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 18px;
+  }
+
+  .instructions {
+    margin: 18px 0;
+  }
+
+  .instructions h2 {
+    font-size: 1.05rem;
+  }
+
+  .instructions p {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .objectives-section {
+    margin: 12px 0;
+    padding: 12px;
+  }
+
+  .start-button {
+    font-size: 1.05rem;
+    padding: 10px 18px;
+  }
+
+  .controls-hint {
+    font-size: 0.75rem;
+    padding: 8px;
+  }
+
+  .spacebel-banner {
+    bottom: 15px;
+    right: 15px;
+    padding: 10px 20px;
+  }
+
+  .spacebel-banner img {
+    height: 45px;
+  }
+}
+
+/* Very small screens (768px - 900px) */
+@media (max-width: 900px) {
+  .home-content {
+    max-width: 500px;
+    padding: 22px;
+  }
+
+  .game-title {
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+  }
+
+  .instructions h2 {
+    font-size: 0.95rem;
+  }
+
+  .instructions p {
+    font-size: 0.75rem;
+  }
+
+  .objectives-section h3 {
+    font-size: 0.9rem;
+  }
+
+  .start-button {
+    font-size: 1rem;
+    padding: 9px 16px;
+  }
+
+  .controls-hint {
+    font-size: 0.7rem;
+    padding: 6px;
+  }
+
+  .spacebel-banner img {
+    height: 40px;
+  }
+}
+
+/* Height-based media queries for short screens */
+
+/* Very short screens (height <= 800px) */
+@media (max-height: 800px) {
+  .home-content {
+    padding: 25px 35px;
+    max-height: 85vh;
+  }
+
+  .game-title {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+
+  .instructions {
+    margin: 20px 0;
+  }
+
+  .instructions h2 {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+
+  .instructions p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+  }
+
+  .objectives-section {
+    margin: 15px 0;
+    padding: 15px;
+  }
+
+  .objectives-section h3 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .objectives-section li {
+    padding: 5px 0;
+    font-size: 0.9rem;
+  }
+
+  .controls-hint {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+
+  .start-button {
+    padding: 12px 25px;
+    font-size: 1.2rem;
+    margin-top: 15px;
+  }
+
+  .spacebel-banner {
+    padding: 8px 16px;
+    bottom: 15px;
+    right: 15px;
+  }
+
+  .spacebel-banner img {
+    height: 40px;
+  }
+}
+
+/* Extremely short screens (height <= 650px) */
+@media (max-height: 650px) {
+  .home-content {
+    padding: 20px 30px;
+    max-height: 80vh;
+  }
+
+  .game-title {
+    font-size: 2rem;
+    margin-bottom: 5px;
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+  }
+
+  .instructions {
+    margin: 15px 0;
+  }
+
+  .instructions h2 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .instructions p {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  .objectives-section {
+    margin: 10px 0;
+    padding: 10px;
+  }
+
+  .objectives-section h3 {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+
+  .objectives-section li {
+    padding: 3px 0;
+    font-size: 0.8rem;
+  }
+
+  .controls-hint {
+    font-size: 0.7rem;
+    padding: 6px;
+  }
+
+  .start-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    margin-top: 10px;
+  }
+
+  .spacebel-banner {
+    padding: 6px 12px;
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .spacebel-banner img {
+    height: 35px;
+  }
 }

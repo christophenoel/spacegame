@@ -26,6 +26,7 @@
   position: relative;
   z-index: 1;
   max-width: 600px;
+  max-height: 90vh;
   padding: 50px;
   background: rgba(0, 20, 40, 0.9);
   border: 3px solid #00d9ff;
@@ -33,6 +34,28 @@
   box-shadow: 0 0 40px rgba(0, 217, 255, 0.4);
   text-align: center;
   color: white;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 217, 255, 0.5) rgba(0, 50, 100, 0.3);
+}
+
+/* Custom scrollbar for webkit browsers */
+.end-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.end-content::-webkit-scrollbar-track {
+  background: rgba(0, 50, 100, 0.3);
+  border-radius: 4px;
+}
+
+.end-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 217, 255, 0.5);
+  border-radius: 4px;
+}
+
+.end-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 217, 255, 0.7);
 }
 
 .result-header {
@@ -146,4 +169,274 @@
 .retry-button:active,
 .menu-button:active {
   transform: translateY(0);
+}
+
+/* Responsive breakpoints for different screen sizes */
+
+/* Large screens (1600px+) */
+@media (min-width: 1600px) {
+  .end-content {
+    max-width: 800px;
+    padding: 60px;
+  }
+
+  .result-header {
+    font-size: 3.5rem;
+  }
+
+  .result-message {
+    font-size: 1.3rem;
+    line-height: 2;
+  }
+
+  .score-label {
+    font-size: 1.4rem;
+  }
+
+  .score-value {
+    font-size: 5rem;
+  }
+
+  .retry-button,
+  .menu-button {
+    font-size: 1.5rem;
+    padding: 18px 35px;
+  }
+}
+
+/* Smaller laptops (1024px - 1200px) */
+@media (max-width: 1200px) {
+  .end-content {
+    max-width: 550px;
+    padding: 40px;
+  }
+
+  .result-header {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+
+  .result-message {
+    font-size: 1rem;
+    line-height: 1.7;
+    margin: 25px 0;
+  }
+
+  .score-display {
+    margin: 35px 0;
+    padding: 25px;
+  }
+
+  .score-label {
+    font-size: 1.1rem;
+  }
+
+  .score-value {
+    font-size: 3.5rem;
+  }
+
+  .retry-button,
+  .menu-button {
+    font-size: 1.2rem;
+    padding: 12px 25px;
+  }
+
+  .end-buttons {
+    gap: 12px;
+    margin-top: 35px;
+  }
+}
+
+/* Small laptops (900px - 1024px) */
+@media (max-width: 1024px) {
+  .end-content {
+    max-width: 500px;
+    padding: 35px;
+  }
+
+  .result-header {
+    font-size: 2.2rem;
+    letter-spacing: 2px;
+  }
+
+  .result-message {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 20px 0;
+  }
+
+  .score-display {
+    margin: 30px 0;
+    padding: 20px;
+  }
+
+  .score-label {
+    font-size: 1rem;
+  }
+
+  .score-value {
+    font-size: 3rem;
+  }
+
+  .retry-button,
+  .menu-button {
+    font-size: 1.1rem;
+    padding: 12px 22px;
+  }
+
+  .end-buttons {
+    gap: 12px;
+    margin-top: 30px;
+  }
+
+  .score-breakdown {
+    font-size: 0.85rem;
+  }
+}
+
+/* Very small screens (768px - 900px) */
+@media (max-width: 900px) {
+  .end-content {
+    max-width: 450px;
+    padding: 30px;
+  }
+
+  .result-header {
+    font-size: 2rem;
+    letter-spacing: 2px;
+  }
+
+  .result-message {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .score-display {
+    margin: 25px 0;
+    padding: 18px;
+  }
+
+  .score-label {
+    font-size: 0.95rem;
+  }
+
+  .score-value {
+    font-size: 2.5rem;
+  }
+
+  .retry-button,
+  .menu-button {
+    font-size: 1rem;
+    padding: 10px 20px;
+    letter-spacing: 1px;
+  }
+
+  .end-buttons {
+    gap: 10px;
+    margin-top: 25px;
+  }
+
+  .score-breakdown {
+    font-size: 0.8rem;
+  }
+}
+
+/* Height-based media queries for short screens */
+
+/* Very short screens (height <= 800px) */
+@media (max-height: 800px) {
+  .end-content {
+    padding: 35px;
+    max-height: 85vh;
+  }
+
+  .result-header {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+
+  .result-message {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 20px 0;
+  }
+
+  .score-display {
+    margin: 30px 0;
+    padding: 20px;
+  }
+
+  .score-label {
+    font-size: 1rem;
+  }
+
+  .score-value {
+    font-size: 3rem;
+  }
+
+  .retry-button,
+  .menu-button {
+    padding: 12px 25px;
+    font-size: 1.2rem;
+  }
+
+  .end-buttons {
+    gap: 12px;
+    margin-top: 30px;
+  }
+}
+
+/* Extremely short screens (height <= 650px) */
+@media (max-height: 650px) {
+  .end-content {
+    padding: 25px;
+    max-height: 80vh;
+  }
+
+  .result-header {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+  }
+
+  .result-message {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin: 15px 0;
+  }
+
+  .result-message p {
+    margin: 5px 0;
+  }
+
+  .score-display {
+    margin: 20px 0;
+    padding: 15px;
+  }
+
+  .score-label {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+  }
+
+  .score-value {
+    font-size: 2.5rem;
+  }
+
+  .score-breakdown {
+    font-size: 0.75rem;
+    margin: 10px 0;
+  }
+
+  .retry-button,
+  .menu-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+
+  .end-buttons {
+    gap: 10px;
+    margin-top: 20px;
+  }
 }

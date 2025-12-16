@@ -3,7 +3,8 @@ import { GameState } from '../types/game';
 import { initializeGame } from '../game/physics';
 import { updateGameState, ThrustInputs } from '../game/engine';
 import { renderGame, generateStars } from '../game/renderer';
-import { GAME_CONFIG, KEYS } from '../game/constants';
+import { KEYS } from '../game/constants';
+import ControlsModal from './ControlsModal';
 import './GameScreen.css';
 
 interface GameScreenProps {
@@ -12,12 +13,17 @@ interface GameScreenProps {
 
 const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [gameState, setGameState] = useState<GameState>(() => initializeGame());
-  const [stars] = useState(() => generateStars(100));
+  const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
+  const [gameState, setGameState] = useState<GameState | null>(null);
+  const [stars, setStars] = useState<Array<{ x: number; y: number; size: number; opacity: number }>>([]);
+  const [zoom, setZoom] = useState(1);
+  const [cameraMode, setCameraMode] = useState<'earth' | 'satellite'>('earth');
   const backgroundImageRef = useRef<HTMLImageElement | null>(null);
   const earthImageRef = useRef<HTMLImageElement | null>(null);
   const [imagesLoaded, setImagesLoaded] = useState(false);
-  const gameStateRef = useRef<GameState>(gameState);
+  const [showControls, setShowControls] = useState(false);
+  const gameStateRef = useRef<GameState | null>(null);
+  const gameInitializedRef = useRef(false);
   const thrustInputsRef = useRef<ThrustInputs>({
     up: false,
     down: false,
@@ -26,6 +32,29 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
   });
   const lastTimeRef = useRef<number>(0);
   const animationFrameRef = useRef<number | null>(null);
+
+  // Set up canvas dimensions
+  useEffect(() => {
+    const updateDimensions = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      setCanvasDimensions({ width, height });
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
+  // Initialize game once when dimensions are first set
+  useEffect(() => {
+    if (canvasDimensions.width > 0 && canvasDimensions.height > 0 && !gameInitializedRef.current) {
+      setGameState(initializeGame(canvasDimensions.width, canvasDimensions.height));
+      setStars(generateStars(150, canvasDimensions.width, canvasDimensions.height));
+      gameInitializedRef.current = true;
+    }
+  }, [canvasDimensions]);
 
   // Load images
   useEffect(() => {
@@ -68,17 +97,72 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
   }, [gameState]);
 
   const togglePause = useCallback(() => {
-    setGameState((prev) => ({
-      ...prev,
-      isPaused: !prev.isPaused,
-    }));
+    setGameState((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        isPaused: !prev.isPaused,
+      };
+    });
   }, []);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      // Handle controls modal toggle
+      if (e.key === 'h' || e.key === 'H' || e.key === '?') {
+        e.preventDefault();
+        setShowControls(true);
+        return;
+      }
+
       if (KEYS.PAUSE.includes(e.key)) {
         e.preventDefault();
         togglePause();
+        return;
+      }
+
+      // Handle camera mode toggle
+      if (e.key === 'c' || e.key === 'C') {
+        e.preventDefault();
+        setCameraMode((prev) => prev === 'earth' ? 'satellite' : 'earth');
+        return;
+      }
+
+      // Handle solar panel toggle
+      if (KEYS.SOLAR_PANELS.includes(e.key)) {
+        e.preventDefault();
+        setGameState((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            solarPanelsDeployed: !prev.solarPanelsDeployed,
+          };
+        });
+        return;
+      }
+
+      // Handle trajectory prediction toggle
+      if (KEYS.TRAJECTORY.includes(e.key)) {
+        e.preventDefault();
+        setGameState((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            showTrajectoryPrediction: !prev.showTrajectoryPrediction,
+          };
+        });
+        return;
+      }
+
+      // Handle zoom controls
+      if (e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        setZoom((prev) => Math.min(prev + 0.2, 3));
+        return;
+      }
+      if (e.key === '-' || e.key === '_') {
+        e.preventDefault();
+        setZoom((prev) => Math.max(prev - 0.2, 0.5));
         return;
       }
 
@@ -129,14 +213,14 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
 
   // Check for game end
   useEffect(() => {
-    if (gameState.gameStatus !== 'playing') {
+    if (gameState && gameState.gameStatus !== 'playing') {
       onGameEnd(gameState.score, gameState.gameStatus === 'won');
     }
-  }, [gameState.gameStatus, gameState.score, onGameEnd]);
+  }, [gameState?.gameStatus, gameState?.score, onGameEnd]);
 
   // Game loop
   useEffect(() => {
-    if (!imagesLoaded) return;
+    if (!imagesLoaded || !gameState) return;
 
     const gameLoop = (currentTime: number) => {
       if (!lastTimeRef.current) {
@@ -150,26 +234,32 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
       const cappedDeltaTime = Math.min(deltaTime, 0.1);
 
       // Update game state using ref to get current state
-      const newState = updateGameState(
-        gameStateRef.current,
-        thrustInputsRef.current,
-        cappedDeltaTime
-      );
-      setGameState(newState);
-
-      // Render
-      const canvas = canvasRef.current;
-      const ctx = canvas?.getContext('2d');
-      if (ctx && canvas && imagesLoaded) {
-        renderGame(
-          ctx,
-          newState,
-          stars,
+      if (gameStateRef.current) {
+        const newState = updateGameState(
+          gameStateRef.current,
           thrustInputsRef.current,
-          currentTime,
-          backgroundImageRef.current,
-          earthImageRef.current
+          cappedDeltaTime,
+          canvasDimensions.width,
+          canvasDimensions.height
         );
+        setGameState(newState);
+
+        // Render
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
+        if (ctx && canvas && imagesLoaded) {
+          renderGame(
+            ctx,
+            newState,
+            stars,
+            thrustInputsRef.current,
+            currentTime,
+            backgroundImageRef.current,
+            earthImageRef.current,
+            zoom,
+            cameraMode
+          );
+        }
       }
 
       // Continue loop
@@ -184,11 +274,15 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [stars, imagesLoaded]);
+  }, [stars, imagesLoaded, gameState, canvasDimensions, zoom, cameraMode]);
+
+  if (!gameState) {
+    return <div className="game-screen">Loading...</div>;
+  }
 
   const orbsCollected = gameState.orbs.filter((orb) => orb.collected).length;
   const totalOrbs = gameState.orbs.length;
-  const fuelPercentage = (gameState.satellite.fuel / GAME_CONFIG.maxFuel) * 100;
+  const batteryPercentage = (gameState.satellite.battery / 100) * 100;
 
   return (
     <div className="game-screen">
@@ -199,29 +293,29 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
         </div>
 
         <div className="hud-section">
-          <div className="hud-label">Orbs</div>
+          <div className="hud-label">Debris</div>
           <div className="hud-value">
             {orbsCollected} / {totalOrbs}
           </div>
         </div>
 
         <div className="hud-section fuel-section">
-          <div className="hud-label">Fuel</div>
+          <div className="hud-label">Battery</div>
           <div className="fuel-bar-container">
             <div
               className="fuel-bar"
               style={{
-                width: `${fuelPercentage}%`,
+                width: `${batteryPercentage}%`,
                 backgroundColor:
-                  fuelPercentage > 50
+                  batteryPercentage > 50
                     ? '#00ff00'
-                    : fuelPercentage > 25
+                    : batteryPercentage > 25
                     ? '#ffaa00'
                     : '#ff0000',
               }}
             ></div>
           </div>
-          <div className="hud-value">{Math.floor(gameState.satellite.fuel)}%</div>
+          <div className="hud-value">{Math.floor(gameState.satellite.battery)}%</div>
         </div>
 
         {gameState.isPaused && (
@@ -235,14 +329,16 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
 
       <canvas
         ref={canvasRef}
-        width={GAME_CONFIG.canvasWidth}
-        height={GAME_CONFIG.canvasHeight}
+        width={canvasDimensions.width}
+        height={canvasDimensions.height}
         className="game-canvas"
       />
 
       <div className="game-controls-hint">
-        Use Arrow Keys or WASD to control thrusters | SPACE to pause
+        H:controls | +/-:zoom | C:camera | P:solar panels | T:trajectory | SPACE:pause
       </div>
+
+      <ControlsModal isOpen={showControls} onClose={() => setShowControls(false)} />
     </div>
   );
 };
