@@ -21,4 +21,7 @@ export const KEYS = {
   PAUSE: [' ', 'Escape'],
   SOLAR_PANELS: ['p', 'P'],
   TRAJECTORY: ['t', 'T'],
+  CAMERA: ['c', 'C'],
+  ZOOM_IN: ['+', '='],
+  ZOOM_OUT: ['-', '_'],
 };

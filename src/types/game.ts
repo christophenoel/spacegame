@@ -30,6 +30,11 @@ export interface CollectionEffect {
   points: number;
 }
 
+export interface CrashBurstEffect {
+  position: Vector2D;
+  startTime: number;
+}
+
 export interface GameState {
   satellite: Satellite;
   planet: Planet;
@@ -38,6 +43,7 @@ export interface GameState {
   gameStatus: 'playing' | 'won' | 'lost';
   isPaused: boolean;
   collectionEffects: CollectionEffect[];
+  crashBurst?: CrashBurstEffect; // Explosion effect when satellite crashes
   solarPanelsDeployed: boolean;
   solarPanelDeployment: number; // 0 = retracted, 1 = fully deployed
   showTrajectoryPrediction: boolean;

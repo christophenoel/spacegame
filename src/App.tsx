@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import HomeScreen from './components/HomeScreen';
 import GameScreen from './components/GameScreen';
 import EndScreen from './components/EndScreen';
+import TutorialScreen from './components/TutorialScreen';
 import './App.css';
 
-type Screen = 'home' | 'game' | 'end';
+type Screen = 'home' | 'game' | 'tutorial' | 'end';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
@@ -13,6 +14,10 @@ function App() {
 
   const handleStartGame = () => {
     setCurrentScreen('game');
+  };
+
+  const handleStartTutorial = () => {
+    setCurrentScreen('tutorial');
   };
 
   const handleGameEnd = (score: number, won: boolean) => {
@@ -31,8 +36,11 @@ function App() {
 
   return (
     <div className="App">
-      {currentScreen === 'home' && <HomeScreen onStart={handleStartGame} />}
+      {currentScreen === 'home' && (
+        <HomeScreen onStart={handleStartGame} onStartTutorial={handleStartTutorial} />
+      )}
       {currentScreen === 'game' && <GameScreen onGameEnd={handleGameEnd} />}
+      {currentScreen === 'tutorial' && <TutorialScreen onComplete={handleBackToMenu} />}
       {currentScreen === 'end' && (
         <EndScreen
           score={finalScore}

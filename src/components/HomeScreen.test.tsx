@@ -5,14 +5,16 @@ import HomeScreen from './HomeScreen';
 describe('HomeScreen', () => {
   test('renders game title', () => {
     const mockOnStart = jest.fn();
-    render(<HomeScreen onStart={mockOnStart} />);
+    const mockOnStartTutorial = jest.fn();
+    render(<HomeScreen onStart={mockOnStart} onStartTutorial={mockOnStartTutorial} />);
 
     expect(screen.getByText('ORBITAL RESCUE')).toBeInTheDocument();
   });
 
   test('renders mission briefing', () => {
     const mockOnStart = jest.fn();
-    render(<HomeScreen onStart={mockOnStart} />);
+    const mockOnStartTutorial = jest.fn();
+    render(<HomeScreen onStart={mockOnStart} onStartTutorial={mockOnStartTutorial} />);
 
     expect(screen.getByText('Mission Briefing')).toBeInTheDocument();
     expect(screen.getByText(/collect all energy orbs/i)).toBeInTheDocument();
@@ -20,7 +22,8 @@ describe('HomeScreen', () => {
 
   test('renders control instructions', () => {
     const mockOnStart = jest.fn();
-    render(<HomeScreen onStart={mockOnStart} />);
+    const mockOnStartTutorial = jest.fn();
+    render(<HomeScreen onStart={mockOnStart} onStartTutorial={mockOnStartTutorial} />);
 
     expect(screen.getByText('Controls')).toBeInTheDocument();
     expect(screen.getByText('Thrust Up')).toBeInTheDocument();
@@ -32,7 +35,8 @@ describe('HomeScreen', () => {
 
   test('renders objectives', () => {
     const mockOnStart = jest.fn();
-    render(<HomeScreen onStart={mockOnStart} />);
+    const mockOnStartTutorial = jest.fn();
+    render(<HomeScreen onStart={mockOnStart} onStartTutorial={mockOnStartTutorial} />);
 
     expect(screen.getByText('Objectives')).toBeInTheDocument();
     expect(screen.getByText(/Collect all 8 energy orbs/i)).toBeInTheDocument();
@@ -41,7 +45,8 @@ describe('HomeScreen', () => {
 
   test('renders start button', () => {
     const mockOnStart = jest.fn();
-    render(<HomeScreen onStart={mockOnStart} />);
+    const mockOnStartTutorial = jest.fn();
+    render(<HomeScreen onStart={mockOnStart} onStartTutorial={mockOnStartTutorial} />);
 
     const startButton = screen.getByRole('button', { name: /begin mission/i });
     expect(startButton).toBeInTheDocument();
@@ -49,7 +54,8 @@ describe('HomeScreen', () => {
 
   test('calls onStart when start button is clicked', () => {
     const mockOnStart = jest.fn();
-    render(<HomeScreen onStart={mockOnStart} />);
+    const mockOnStartTutorial = jest.fn();
+    render(<HomeScreen onStart={mockOnStart} onStartTutorial={mockOnStartTutorial} />);
 
     const startButton = screen.getByRole('button', { name: /begin mission/i });
     fireEvent.click(startButton);

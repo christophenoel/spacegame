@@ -4,9 +4,10 @@ import './HomeScreen.css';
 
 interface HomeScreenProps {
   onStart: () => void;
+  onStartTutorial: () => void;
 }
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ onStart }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ onStart, onStartTutorial }) => {
   const [showControls, setShowControls] = useState(false);
 
   useEffect(() => {
@@ -28,7 +29,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onStart }) => {
     >
       <div className="stars-background"></div>
       <div className="spacebel-banner">
-        <img src="/logo.svg" alt="Spacebel - Space Systems Engineering" />
+        <img src={`${process.env.PUBLIC_URL}/logo.svg`} alt="Spacebel - Space Systems Engineering" />
       </div>
       <div className="home-content">
         <h1 className="game-title">HUMAN OSBW</h1>
@@ -59,9 +60,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onStart }) => {
           </div>
         </div>
 
-        <button className="start-button" onClick={onStart}>
-          BEGIN MISSION
-        </button>
+        <div className="menu-buttons">
+          <button className="start-button" onClick={onStart}>
+            BEGIN MISSION
+          </button>
+          <button className="tutorial-button" onClick={onStartTutorial}>
+            TUTORIAL
+          </button>
+        </div>
       </div>
 
       <ControlsModal isOpen={showControls} onClose={() => setShowControls(false)} />

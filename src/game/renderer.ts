@@ -91,6 +91,89 @@ export function drawCollectionEffects(ctx: CanvasRenderingContext2D, gameState: 
   });
 }
 
+export function drawCrashBurst(ctx: CanvasRenderingContext2D, gameState: GameState) {
+  if (!gameState.crashBurst) return;
+
+  const currentTime = Date.now();
+  const elapsed = currentTime - gameState.crashBurst.startTime;
+  const duration = 800; // 0.8 seconds
+  const progress = Math.min(elapsed / duration, 1); // 0 to 1
+
+  if (progress < 1) {
+    const { position } = gameState.crashBurst;
+
+    // Multiple expanding blast waves
+    for (let i = 0; i < 3; i++) {
+      const waveDelay = i * 0.15;
+      const waveProgress = Math.max(0, (progress - waveDelay) / (1 - waveDelay));
+
+      if (waveProgress > 0) {
+        const radius = 10 + waveProgress * 60;
+        const opacity = (1 - waveProgress) * 0.8;
+
+        // Outer red wave
+        ctx.strokeStyle = `rgba(255, 50, 0, ${opacity})`;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(position.x, position.y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Inner orange wave
+        ctx.strokeStyle = `rgba(255, 140, 0, ${opacity * 0.7})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(position.x, position.y, radius * 0.7, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    // Bright flash at the center (strongest at the start)
+    const flashProgress = Math.min(progress * 3, 1);
+    const flashOpacity = (1 - flashProgress) * 0.9;
+    const flashRadius = 15 * (1 + progress * 2);
+
+    // White-hot center
+    const gradient = ctx.createRadialGradient(
+      position.x, position.y, 0,
+      position.x, position.y, flashRadius
+    );
+    gradient.addColorStop(0, `rgba(255, 255, 255, ${flashOpacity})`);
+    gradient.addColorStop(0.3, `rgba(255, 200, 0, ${flashOpacity * 0.8})`);
+    gradient.addColorStop(0.6, `rgba(255, 100, 0, ${flashOpacity * 0.5})`);
+    gradient.addColorStop(1, `rgba(255, 0, 0, 0)`);
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(position.x, position.y, flashRadius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Debris particles flying outward
+    const particleCount = 12;
+    for (let i = 0; i < particleCount; i++) {
+      const angle = (i / particleCount) * Math.PI * 2;
+      const particleProgress = progress;
+      const distance = particleProgress * 40;
+      const particleX = position.x + Math.cos(angle) * distance;
+      const particleY = position.y + Math.sin(angle) * distance;
+      const particleOpacity = (1 - progress) * 0.9;
+      const particleSize = 3 + Math.random() * 2;
+
+      ctx.fillStyle = `rgba(255, ${100 + Math.random() * 100}, 0, ${particleOpacity})`;
+      ctx.beginPath();
+      ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Particle trails
+      ctx.strokeStyle = `rgba(255, 150, 0, ${particleOpacity * 0.5})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(position.x, position.y);
+      ctx.lineTo(particleX, particleY);
+      ctx.stroke();
+    }
+  }
+}
+
 export function drawPlanet(
   ctx: CanvasRenderingContext2D,
   gameState: GameState,
@@ -217,7 +300,7 @@ export function drawPlanet(
   ctx.restore();
 
   // Draw planet with Earth image if available
-  if (earthImage) {
+  if (earthImage && earthImage.complete && earthImage.naturalWidth > 0) {
     ctx.save();
     ctx.beginPath();
     ctx.arc(planet.position.x, planet.position.y, planet.radius, 0, Math.PI * 2);
@@ -894,7 +977,7 @@ export function renderGame(
   ctx.translate(-cameraCenter.x, -cameraCenter.y);
 
   // Draw space background image
-  if (backgroundImage) {
+  if (backgroundImage && backgroundImage.complete && backgroundImage.naturalWidth > 0) {
     // Scale image to cover the zoomed viewport
     const scale = Math.max(
       (canvasWidth / zoom) / backgroundImage.width,
@@ -919,6 +1002,7 @@ export function renderGame(
   drawOrbs(ctx, gameState, time);
   drawSatellite(ctx, gameState, thrustInputs);
   drawCollectionEffects(ctx, gameState);
+  drawCrashBurst(ctx, gameState);
 
   // Restore context
   ctx.restore();

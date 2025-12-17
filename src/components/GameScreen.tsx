@@ -62,8 +62,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
       const bgImg = new Image();
       const earthImg = new Image();
 
-      bgImg.src = '/space-background.jpg';
-      earthImg.src = '/earth.jpg';
+      bgImg.src = `${process.env.PUBLIC_URL}/space-background.jpg`;
+      earthImg.src = `${process.env.PUBLIC_URL}/earth.jpg`;
 
       try {
         await Promise.all([
@@ -214,9 +214,19 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
   // Check for game end
   useEffect(() => {
     if (gameState && gameState.gameStatus !== 'playing') {
-      onGameEnd(gameState.score, gameState.gameStatus === 'won');
+      // If there's a crash burst, wait for animation to complete before showing end screen
+      if (gameState.crashBurst) {
+        const animationDuration = 1000; // Wait 1 second for burst animation
+        const timer = setTimeout(() => {
+          onGameEnd(gameState.score, gameState.gameStatus === 'won');
+        }, animationDuration);
+        return () => clearTimeout(timer);
+      } else {
+        // No crash burst, transition immediately
+        onGameEnd(gameState.score, gameState.gameStatus === 'won');
+      }
     }
-  }, [gameState?.gameStatus, gameState?.score, onGameEnd]);
+  }, [gameState?.gameStatus, gameState?.score, gameState?.crashBurst, onGameEnd]);
 
   // Game loop
   useEffect(() => {
@@ -274,7 +284,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [stars, imagesLoaded, gameState, canvasDimensions, zoom, cameraMode]);
+  }, [stars, imagesLoaded, canvasDimensions, zoom, cameraMode]);
 
   if (!gameState) {
     return <div className="game-screen">Loading...</div>;
@@ -324,7 +334,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ onGameEnd }) => {
       </div>
 
       <div className="spacebel-logo">
-        <img src="/logo.svg" alt="Spacebel" />
+        <img src={`${process.env.PUBLIC_URL}/logo.svg`} alt="Spacebel" />
       </div>
 
       <canvas

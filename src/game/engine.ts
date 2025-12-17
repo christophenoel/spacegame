@@ -158,15 +158,25 @@ export function updateGameState(
   const allOrbsCollected = newOrbs.every((orb) => orb.collected);
   let gameStatus: 'playing' | 'won' | 'lost' = gameState.gameStatus;
 
-  if (allOrbsCollected) {
+  // Only win if there are orbs AND they're all collected (prevents instant win with 0 orbs)
+  if (allOrbsCollected && newOrbs.length > 0) {
     gameStatus = 'won';
     // Bonus points for remaining battery
     newScore += Math.floor(satellite.battery * 10);
   }
 
   // Check loss conditions
+  let crashBurst = gameState.crashBurst;
+
   if (checkCollisionWithPlanet(satellite, gameState.planet)) {
     gameStatus = 'lost';
+    // Create crash burst effect at collision point
+    if (!crashBurst) {
+      crashBurst = {
+        position: { ...satellite.position },
+        startTime: currentTime,
+      };
+    }
   }
 
   if (checkOutOfBounds(satellite, canvasWidth || GAME_CONFIG.canvasWidth, canvasHeight || GAME_CONFIG.canvasHeight)) {
@@ -180,6 +190,7 @@ export function updateGameState(
     score: newScore,
     gameStatus,
     collectionEffects: activeEffects,
+    crashBurst,
     solarPanelDeployment,
     sunAngle,
   };
