@@ -60,9 +60,18 @@ Game state flows in a unidirectional pattern:
 ### Physics System
 
 The physics engine implements:
-- **Newtonian gravity** with inverse-square law (`calculateGravity`)
+- **Newtonian gravity** with inverse-square law (`calculateGravity`) - gravity force = GM/r²
 - **Vector mathematics** for 2D position and velocity
-- **Orbital mechanics** - satellite starts with tangential velocity for stable orbit
+- **Satellite orbital mechanics** - realistic Keplerian physics with elliptical orbit:
+  - Satellite speeds up as it falls toward Earth (periapsis - closest point)
+  - Satellite slows down as it moves away from Earth (apoapsis - farthest point)
+  - Initial velocity set to 88% of circular orbit velocity to create a visible ellipse
+  - Gravity continuously pulls satellite toward Earth, creating natural elliptical motion
+- **Debris motion** - stable prescribed elliptical paths (NOT physics-based):
+  - Debris follows stable elliptical orbits that don't change
+  - Motion calculated using angular velocity that varies with distance (Kepler's 2nd law approximation)
+  - Debris speeds up when closer to Earth, slows down when farther away
+  - Stable orbits make debris predictable and easier to collect
 - **Thrust mechanics** - player inputs apply acceleration in satellite-relative coordinates, rotated to world space
 - **Delta time integration** - all physics calculations scaled by frame time for consistency
 
